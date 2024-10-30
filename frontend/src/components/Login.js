@@ -27,6 +27,7 @@ const Login = () => {
             }
         } catch (error) {
             if (error.response && error.response.data) {
+                // Check for specific error messages
                 setMessage(error.response.data.message || 'Login failed!'); // Set error message
             } else {
                 setMessage('Login failed!'); // General error message

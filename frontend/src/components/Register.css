@@ -66,3 +66,10 @@ body {
     color: #ff3333; /* Red color for error messages */
     font-size: 1rem; /* Font size for messages */
 }
+.message.success {
+    color: green;
+}
+.message.error {
+    color: red;
+}
+
