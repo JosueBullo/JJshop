@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './AdminProductPage.css'; // Your CSS file for styling
+import './AdminProductPage.css';
 
 const AdminProductPage = () => {
     const [products, setProducts] = useState([]);
@@ -9,47 +9,45 @@ const AdminProductPage = () => {
         description: '',
         price: '',
         category: '',
-        image: null  // This will hold the image file
+        image: null,
     });
     const [editingProductId, setEditingProductId] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
 
-    // Fetch products from the backend
+    // Fetch products
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 const response = await axios.get('http://localhost:5000/api/products');
-                setProducts(response.data); // Set the fetched products to state
+                setProducts(response.data);
             } catch (error) {
                 console.error('Error fetching products:', error.response ? error.response.data : error.message);
             }
         };
-
         fetchProducts();
     }, []);
 
-    // Handle form submit for adding or updating products
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setErrorMessage('');  // Clear any previous errors
+        setErrorMessage('');
 
-        // Frontend validation to ensure required fields are not empty
+        // Validation for required fields
         if (!formData.name || !formData.description || !formData.price || !formData.category || !formData.image) {
-            setErrorMessage('Please fill in all the fields, including an image.');
+            setErrorMessage('Please fill in all fields, including an image.');
             return;
         }
 
-        // Create FormData object for file upload
+        // Prepare FormData
         const productData = new FormData();
         productData.append('name', formData.name);
         productData.append('description', formData.description);
         productData.append('price', formData.price);
         productData.append('category', formData.category);
-        productData.append('image', formData.image); // append the image file
+        productData.append('image', formData.image);
 
         try {
             if (editingProductId) {
-                // Update existing product
+                // Update product
                 await axios.put(`http://localhost:5000/api/products/${editingProductId}`, productData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
@@ -58,7 +56,7 @@ const AdminProductPage = () => {
                 ));
                 setEditingProductId(null);
             } else {
-                // Add new product
+                // Create new product
                 const response = await axios.post('http://localhost:5000/api/products', productData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
@@ -71,19 +69,17 @@ const AdminProductPage = () => {
         }
     };
 
-    // Edit product function
     const handleEdit = (product) => {
         setEditingProductId(product._id);
         setFormData({
             name: product.name,
             description: product.description,
-            price: isNaN(Number(product.price)) ? product.price : Number(product.price).toFixed(2),
+            price: product.price,
             category: product.category,
-            image: null  // You would need to upload a new image when editing
+            image: null  // Reset image as a new one is required on edit
         });
     };
 
-    // Delete product function
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this product?')) {
             try {
@@ -98,55 +94,16 @@ const AdminProductPage = () => {
     return (
         <div className="admin-product-page container">
             <h2>Manage Products</h2>
-
-            {/* Error Message */}
             {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
-
-            {/* Form to add or edit products */}
             <form onSubmit={handleSubmit} className="mb-4">
-                <input
-                    type="text"
-                    placeholder="Product Name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                    className="form-control mb-2"
-                />
-                <textarea
-                    placeholder="Description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    required
-                    className="form-control mb-2"
-                />
-                <input
-                    type="number"
-                    placeholder="Price"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    required
-                    className="form-control mb-2"
-                />
-                <input
-                    type="text"
-                    placeholder="Category"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    required
-                    className="form-control mb-2"
-                />
-                <input
-                    type="file"
-                    onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
-                    required
-                    className="form-control mb-2"
-                />
-                <button type="submit" className="btn btn-primary">
-                    {editingProductId ? 'Update Product' : 'Add Product'}
-                </button>
+                <input type="text" placeholder="Product Name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required className="form-control mb-2" />
+                <textarea placeholder="Description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} required className="form-control mb-2" />
+                <input type="number" placeholder="Price" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} required className="form-control mb-2" />
+                <input type="text" placeholder="Category" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} required className="form-control mb-2" />
+                <input type="file" onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })} required className="form-control mb-2" />
+                <button type="submit" className="btn btn-primary">{editingProductId ? 'Update Product' : 'Add Product'}</button>
             </form>
 
-            {/* Display list of products */}
             <div className="product-list">
                 <h3>Product List</h3>
                 <table className="table table-striped">
@@ -165,18 +122,14 @@ const AdminProductPage = () => {
                             <tr key={product._id}>
                                 <td>{product.name}</td>
                                 <td>{product.description}</td>
-                                <td>${Number(product.price) ? Number(product.price).toFixed(2) : 'N/A'}</td>
+                                <td>${Number(product.price).toFixed(2)}</td>
                                 <td>{product.category}</td>
                                 <td>
                                     <img src={`http://localhost:5000/${product.imageUrl}`} alt={product.name} className="img-thumbnail" style={{ width: '50px' }} />
                                 </td>
                                 <td>
-                                    <button onClick={() => handleEdit(product)} className="btn btn-warning me-2">
-                                        Edit
-                                    </button>
-                                    <button onClick={() => handleDelete(product._id)} className="btn btn-danger">
-                                        Delete
-                                    </button>
+                                    <button onClick={() => handleEdit(product)} className="btn btn-warning me-2">Edit</button>
+                                    <button onClick={() => handleDelete(product._id)} className="btn btn-danger">Delete</button>
                                 </td>
                             </tr>
                         ))}
@@ -188,4 +141,3 @@ const AdminProductPage = () => {
 };
 
 export default AdminProductPage;
-                    

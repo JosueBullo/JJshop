@@ -24,8 +24,11 @@ const upload = multer({ dest: 'uploads/' }); // Set up multer for file uploads
 // Define routes
 router.post('/', upload.single('image'), createProduct); // Correct POST route with file upload middleware
 router.get('/', getAllProducts);
-router.put('/:id', updateProduct);
+//router.put('/:id', updateProduct);
+router.put('/:id', upload.single('image'), updateProduct);
 router.delete('/:id', deleteProduct);
+router.put('/products/:id', updateProduct);
+
 
 module.exports = router;
 
