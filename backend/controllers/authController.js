@@ -1,13 +1,110 @@
-// controllers/authController.js
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sendMail = require('../config/mailer');
 const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library'); // Import Google Auth Library
 
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID); // Initialize Google OAuth Client
 
 // Register function
+exports.register = async (req, res) => {
+    const { username, email, password, role } = req.body;
 
+    console.log("Request body:", req.body); // Debug log
+
+    try {
+        // Check if the user already exists
+        let user = await User.findOne({ email });
+        if (user) return res.status(400).json({ message: 'User already exists' });
+
+        // Create a new user with a hashed password
+        user = new User({
+            username,
+            email,
+            password: await bcrypt.hash(password, 10),
+            role
+        });
+
+        // Save the new user
+        await user.save();
+
+        // Send a success response
+        res.status(201).json({ message: 'User registered successfully.' });
+    } catch (err) {
+        console.error("Error during registration:", err); // Debug log
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Login function
+const User = require('../models/User'); // Ensure correct path to User model
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+exports.login = async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        // Step 1: Find the user by email
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid credentials' }); // User not found
+        }
+
+        // Step 2: Validate the password if it's a normal login
+        if (password) {
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) {
+                return res.status(400).json({ message: 'Invalid credentials' }); // Password does not match
+            }
+        }
+
+        // Step 3: Sign token including the user's role
+        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Step 4: Respond with token, role, and a success message
+        res.json({ token, role: user.role, message: 'Login successful!' });
+    } catch (err) {
+        console.error(err); // Log the error for debugging
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Google login function
+exports.googleLogin = async (req, res) => {
+    const { tokenId } = req.body;
+
+    try {
+        const ticket = await client.verifyIdToken({
+            idToken: tokenId,
+            audience: process.env.GOOGLE_CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
+        });
+        const { email, name, sub: googleId } = ticket.getPayload(); // Get user info from the token
+
+        // Check if the user already exists
+        let user = await User.findOne({ email });
+        if (!user) {
+            // If user doesn't exist, create a new one
+            user = new User({
+                username: name,
+                email,
+                googleId, // Store Google ID for reference
+                role: 'user', // Default role for Google login
+            });
+            await user.save(); // Save the user to the database
+        }
+
+        // Sign token for the existing or newly created user
+        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Respond with token, role, and a success message
+        res.json({ token, role: user.role, message: 'Google login successful!' });
+    } catch (err) {
+        console.error(err); // Log the error for debugging
+        res.status(500).json({ message: 'Server error' });
+    }
+};
 
 // Email sending function
 exports.sendEmail = async (req, res) => {
@@ -18,90 +115,5 @@ exports.sendEmail = async (req, res) => {
         res.status(200).json({ success: true, message: 'Email sent successfully!' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Failed to send email' });
-    }
-};
-
-// Register function with email verification
-exports.register = async (req, res) => {
-    const { username, email, password, role } = req.body;
-
-    console.log("Request body:", req.body); // Debug log
-
-    try {
-        let user = await User.findOne({ email });
-        if (user) return res.status(400).json({ message: 'User already exists' });
-
-        // Generate a verification token
-        const verificationToken = crypto.randomBytes(32).toString('hex');
-
-        // Create a new user with hashed password and verification token
-        user = new User({
-            username,
-            email,
-            password: await bcrypt.hash(password, 10),
-            role,
-            verificationToken,
-        });
-        await user.save();
-
-        // Send a verification email
-        const subject = 'Welcome to YourApp! Please Verify Your Email';
-        const verificationUrl = `http://localhost:5000/api/auth/verify-email?token=${verificationToken}`;
-        const message = `Hello ${username},\n\nThank you for registering with us! Please verify your email by clicking the link below:\n${verificationUrl}\n\nBest Regards,\nYourApp Team`;
-
-        await sendMail(email, subject, message);
-
-        res.status(201).json({ message: 'User registered successfully. Verification email sent.' });
-    } catch (err) {
-        console.error("Error during registration:", err); // Debug log
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
-// Verification route function (additional route to add in your controller)
-exports.verifyEmail = async (req, res) => {
-    const { token } = req.query;
-
-    try {
-        const user = await User.findOne({ verificationToken: token });
-        if (!user) {
-            return res.status(400).json({ message: 'Invalid or expired token' });
-        }
-
-        // Verify the user
-        user.isVerified = true;
-        user.verificationToken = null; // Clear the token after verification
-        await user.save();
-
-        res.status(200).json({ message: 'Email verified successfully!' });
-    } catch (err) {
-        console.error("Error during email verification:", err);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
-// Login function
-
-exports.login = async (req, res) => {
-    const { email, password } = req.body;
-
-    try {
-        const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ message: 'Invalid credentials' });
-
-        // Check if the email has been accepted
-        if (!user.isEmailAccepted) {
-            return res.status(403).json({ message: 'Your email is not yet accepted. Please check your inbox.' });
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
-
-        // Sign token including the role
-        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token, role: user.role, message: 'Login successful!' });
-    } catch (err) {
-        console.error(err); // Log the error for debugging
-        res.status(500).json({ message: 'Server error' });
     }
 };

@@ -20,3 +20,7 @@ export const loginUser = async (userData) => {
     });
     return response.data; // Return the response data
 };
+
+export const googleLogin = async (data) => {
+    return await axios.post(`${API_URL}/google`, data);
+};
