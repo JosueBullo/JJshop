@@ -1,6 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { 
+    Container, 
+    TextField, 
+    Button, 
+    FormControl, 
+    InputLabel, 
+    Select, 
+    MenuItem, 
+    Table, 
+    TableBody, 
+    TableCell, 
+    TableContainer, 
+    TableHead, 
+    TableRow, 
+    Paper, 
+    CircularProgress,
+    Typography,
+    TablePagination
+} from '@mui/material';
 
 const UserTable = () => {
     const [users, setUsers] = useState([]);
@@ -12,6 +30,8 @@ const UserTable = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
 
     useEffect(() => {
         fetchUsers();
@@ -94,77 +114,126 @@ const UserTable = () => {
         setError(null);
     };
 
-    if (loading) return <p>Loading users...</p>;
-    if (error) return <p style={{ color: 'red' }}>{error}</p>;
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
+    if (loading) return <CircularProgress />;
+    if (error) return <Typography color="error">{error}</Typography>;
 
     return (
-        <div className="container mt-4">
-            <h1>User Management</h1>
-            <form onSubmit={handleAddOrUpdateUser} className="mb-4">
-                <div className="input-group mb-3">
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+        <Container component="main" maxWidth="lg">
+            <Typography variant="h4" component="h1" gutterBottom>
+                User Management
+            </Typography>
+            <form onSubmit={handleAddOrUpdateUser} style={{ marginBottom: '20px' }}>
+                <TextField
+                    variant="outlined"
+                    label="Username"
+                    fullWidth
+                    margin="normal"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                />
+                <TextField
+                    variant="outlined"
+                    label="Email"
+                    fullWidth
+                    margin="normal"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                />
+                {!selectedUser && (
+                    <TextField
+                        variant="outlined"
+                        label="Password"
+                        type="password"
+                        fullWidth
+                        margin="normal"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         required
                     />
-                    <input
-                        type="email"
-                        className="form-control"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                    {!selectedUser && (
-                        <input
-                            type="password"
-                            className="form-control"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    )}
-                    <select value={role} onChange={(e) => setRole(e.target.value)} className="form-select" required>
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                    <button type="submit" className="btn btn-primary" disabled={actionLoading}>
-                        {actionLoading ? 'Saving...' : selectedUser ? 'Update User' : 'Add User'}
-                    </button>
-                    <button type="button" className="btn btn-secondary" onClick={resetForm} disabled={actionLoading}>
-                        Cancel
-                    </button>
-                </div>
+                )}
+                <FormControl variant="outlined" fullWidth margin="normal" required>
+                    <InputLabel>Role</InputLabel>
+                    <Select
+                        value={role}
+                        onChange={(e) => setRole(e.target.value)}
+                        label="Role"
+                    >
+                        <MenuItem value="user">User</MenuItem>
+                        <MenuItem value="admin">Admin</MenuItem>
+                    </Select>
+                </FormControl>
+                <Button type="submit" variant="contained" color="primary" disabled={actionLoading}>
+                    {actionLoading ? 'Saving...' : selectedUser ? 'Update User' : 'Add User'}
+                </Button>
+                <Button type="button" variant="outlined" onClick={resetForm} disabled={actionLoading} style={{ marginLeft: '10px' }}>
+                    Cancel
+                </Button>
             </form>
 
-            <table className="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map(user => (
-                        <tr key={user._id}>
-                            <td>{user.username}</td>
-                            <td>{user.email}</td>
-                            <td>{user.role}</td>
-                            <td>
-                                <button className="btn btn-warning btn-sm" onClick={() => handleEditUser(user)} disabled={actionLoading}>Edit</button>
-                                <button className="btn btn-danger btn-sm" onClick={() => handleDeleteUser(user._id)} disabled={actionLoading}>Delete</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Username</TableCell>
+                            <TableCell>Email</TableCell>
+                            <TableCell>Role</TableCell>
+                            <TableCell>Profile</TableCell>
+                            <TableCell>Actions</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {users.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(user => (
+                            <TableRow key={user._id}>
+                                <TableCell>{user.username}</TableCell>
+                                <TableCell>{user.email}</TableCell>
+                                <TableCell>{user.role}</TableCell>
+                                <TableCell>
+                                    <Button 
+                                        variant="contained" 
+                                        color="warning" 
+                                        size="small" 
+                                        onClick={() => handleEditUser(user)} 
+                                        disabled={actionLoading}
+                                    >
+                                        Edit
+                                    </Button>
+                                    <Button 
+                                        variant="contained" 
+                                        color="error" 
+                                        size="small" 
+                                        onClick={() => handleDeleteUser(user._id)} 
+                                        disabled={actionLoading} 
+                                        style={{ marginLeft: '10px' }}
+                                    >
+                                        Delete
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={users.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+        </Container>
     );
 };
 

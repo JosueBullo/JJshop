@@ -1,75 +1,107 @@
 /* src/components/Register.css */
 
-body {
-    margin: 0; /* Remove default margin */
-    font-family: Arial, sans-serif; /* Font family for the whole page */
-    background-color: #f4f4f4; /* Light background color */
-    height: 100vh; /* Full viewport height */
-    display: flex; /* Use Flexbox */
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
+/* Styling for the "Already have an account?" link */
+.login-link {
+    margin-top: 15px;
+    text-align: center; /* Center align the text */
 }
 
+.login-link p {
+    font-size: 14px;
+    color: #ddd; /* Light gray text for dark theme */
+}
+
+.login-link .link-text {
+    color: #3498db; /* Blue color for the link */
+    cursor: pointer;
+    text-decoration: none; /* Remove underline */
+}
+
+.login-link .link-text:hover {
+    text-decoration: underline; /* Add underline on hover */
+}
+
+/* Styling for the Exit Button */
+.exit-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #e74c3c; /* Red color */
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 20px; /* Space it below other elements */
+}
+
+.exit-button:hover {
+    background-color: #c0392b; /* Darker red on hover */
+    transform: translateY(-2px); /* Slightly lift on hover for interaction effect */
+}
+
+.exit-button:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); /* Add a subtle red glow on focus */
+}
+
+/* General form styling */
 .register-container {
-    max-width: 500px; /* Increased maximum width for the container */
-    width: 100%; /* Allow it to take full width up to max-width */
-    padding: 30px; /* Increased inner spacing */
-    background-color: rgba(0, 0, 0, 0.7); /* Dark background for contrast */
-    border-radius: 12px; /* Rounded corners */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Shadow for depth */
-    color: #fff; /* White text for readability */
-    text-align: center; /* Center text for cleaner layout */
-}
-
-.register-container h2 {
-    margin-bottom: 25px; /* Space below the heading */
-    font-size: 2rem; /* Increased heading size */
+    width: 100%;
+    max-width: 400px;
+    margin: 50px auto; /* Added margin-top to push container down */
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #333; /* Darker border for dark theme */
+    border-radius: 8px;
+    background-color: #2c3e50; /* Dark background for the container */
+    color: #ddd; /* Light text color for better readability */
 }
 
 .register-form {
     display: flex;
-    flex-direction: column; /* Stack inputs vertically */
+    flex-direction: column;
 }
 
-.register-form input {
-    margin-bottom: 15px; /* Space between input fields */
-    padding: 12px; /* Increased inner spacing for inputs */
-    border: none; /* Remove default border */
-    border-radius: 5px; /* Rounded corners */
-    background-color: rgba(255, 255, 255, 0.2); /* Light background for inputs */
-    color: #fff; /* White text */
-    font-size: 1.1rem; /* Increased font size for inputs */
+.register-form input,
+.register-form button {
+    margin-bottom: 15px;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #555; /* Darker border for input fields */
+    background-color: #34495e; /* Dark background for inputs */
+    color: #ddd; /* Light text for inputs */
 }
 
-.register-form input::placeholder {
-    color: #ddd; /* Light color for placeholder text */
+.register-form input:focus {
+    border-color: #1abc9c; /* Greenish focus border for inputs */
+    outline: none;
+    background-color: #2c3e50; /* Slightly darker background on focus */
 }
 
 .register-form button {
-    padding: 14px; /* Increased button padding */
-    background-color: #007bff; /* Primary color for the button */
-    border: none; /* Remove border */
-    border-radius: 5px; /* Rounded corners */
-    color: #fff; /* White text */
-    font-size: 1.1rem; /* Increased font size for button */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s; /* Smooth transition for hover */
+    background-color: #27ae60; /* Green color for submit */
+    color: white;
+    border: none;
+    cursor: pointer;
 }
 
-.register-form button:hover {
-    background-color: #0056b3; /* Darker shade on hover */
+.register-form button:disabled {
+    background-color: #7f8c8d; /* Light gray for disabled button */
+    cursor: not-allowed;
 }
 
+/* Success/Error messages */
 .message {
-    margin-top: 20px; /* Space above the message */
-    text-align: center; /* Center the message */
-    color: #ff3333; /* Red color for error messages */
-    font-size: 1rem; /* Font size for messages */
-}
-.message.success {
-    color: green;
-}
-.message.error {
-    color: red;
+    margin-top: 15px;
+    font-size: 16px;
 }
 
+.message.success {
+    color: #2ecc71; /* Green for success */
+}
+
+.message.error {
+    color: #e74c3c; /* Red for error */
+}

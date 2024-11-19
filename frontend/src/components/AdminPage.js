@@ -5,8 +5,8 @@ import './AdminPage.css'; // Create a CSS file for styling
 const AdminPage = () => {
     return (
         <div>
-            <h2>Welcome to the Admin Page!</h2>
-            <h2>Welcome to the Admin Page!</h2>
+            <h2>Dashboard</h2>
+          
         </div>
     );
 };

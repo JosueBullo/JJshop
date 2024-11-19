@@ -1,21 +1,27 @@
-.btn-warning {
-    background-color: #ffc107;
-    border: none;
-    color: white;
+.admin-product-page {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
-.btn-danger {
-    background-color: #dc3545;
-    border: none;
-    color: white;
+.admin-product-layout {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 20px;
 }
 
-.btn-warning:hover, .btn-danger:hover {
-    opacity: 3.0;
+.form-container {
+    width: 30%; /* Adjust the width of the form container */
+    padding-right: 20px; /* Add some spacing */
 }
 
-.img-thumbnail {
-    max-width: 50px;
-    max-height: 50px;
-    border-radius: 5px;
+.product-list-container {
+    flex: 1; /* Allows the product list to take remaining space */
+    max-height: 600px; /* Set a max height for scrolling */
+    overflow-y: auto; /* Enable vertical scrolling */
+}
+
+.product-table {
+    min-width: 700px; /* Ensure the table is wide enough */
 }

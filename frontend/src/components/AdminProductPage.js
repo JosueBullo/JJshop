@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import {
+    TextField,
+    Button,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Typography,
+    Snackbar,
+    Alert,
+    Grid,
+    TablePagination, // Import TablePagination
+} from '@mui/material';
 import './AdminProductPage.css';
 
 const AdminProductPage = () => {
@@ -13,6 +29,11 @@ const AdminProductPage = () => {
     });
     const [editingProductId, setEditingProductId] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
+    const [snackOpen, setSnackOpen] = useState(false);
+    
+    // Pagination states
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5); // Default rows per page
 
     // Fetch products
     useEffect(() => {
@@ -34,6 +55,7 @@ const AdminProductPage = () => {
         // Validation for required fields
         if (!formData.name || !formData.description || !formData.price || !formData.category || !formData.image) {
             setErrorMessage('Please fill in all fields, including an image.');
+            setSnackOpen(true);
             return;
         }
 
@@ -66,6 +88,7 @@ const AdminProductPage = () => {
         } catch (error) {
             console.error('Error adding/updating product:', error.response ? error.response.data : error.message);
             setErrorMessage(error.response ? error.response.data.message : 'Error adding/updating product.');
+            setSnackOpen(true);
         }
     };
 
@@ -76,7 +99,7 @@ const AdminProductPage = () => {
             description: product.description,
             price: product.price,
             category: product.category,
-            image: null  // Reset image as a new one is required on edit
+            image: null,  // Reset image as a new one is required on edit
         });
     };
 
@@ -91,50 +114,142 @@ const AdminProductPage = () => {
         }
     };
 
+    const handleSnackClose = () => {
+        setSnackOpen(false);
+    };
+
+    // Handle pagination
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0); // Reset to the first page
+    };
+
+    // Paginated products
+    const paginatedProducts = products.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
     return (
         <div className="admin-product-page container">
-            <h2>Manage Products</h2>
-            {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
-            <form onSubmit={handleSubmit} className="mb-4">
-                <input type="text" placeholder="Product Name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required className="form-control mb-2" />
-                <textarea placeholder="Description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} required className="form-control mb-2" />
-                <input type="number" placeholder="Price" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} required className="form-control mb-2" />
-                <input type="text" placeholder="Category" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} required className="form-control mb-2" />
-                <input type="file" onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })} required className="form-control mb-2" />
-                <button type="submit" className="btn btn-primary">{editingProductId ? 'Update Product' : 'Add Product'}</button>
-            </form>
-
-            <div className="product-list">
-                <h3>Product List</h3>
-                <table className="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Price</th>
-                            <th>Category</th>
-                            <th>Image</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {products.map((product) => (
-                            <tr key={product._id}>
-                                <td>{product.name}</td>
-                                <td>{product.description}</td>
-                                <td>${Number(product.price).toFixed(2)}</td>
-                                <td>{product.category}</td>
-                                <td>
-                                    <img src={`http://localhost:5000/${product.imageUrl}`} alt={product.name} className="img-thumbnail" style={{ width: '50px' }} />
-                                </td>
-                                <td>
-                                    <button onClick={() => handleEdit(product)} className="btn btn-warning me-2">Edit</button>
-                                    <button onClick={() => handleDelete(product._id)} className="btn btn-danger">Delete</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <Typography variant="h4" gutterBottom>
+                Manage Products
+            </Typography>
+            {errorMessage && (
+                <Snackbar open={snackOpen} autoHideDuration={6000} onClose={handleSnackClose}>
+                    <Alert onClose={handleSnackClose} severity="error">
+                        {errorMessage}
+                    </Alert>
+                </Snackbar>
+            )}
+            <div className="admin-product-layout">
+                <div className="form-container">
+                    <form onSubmit={handleSubmit} className="mb-4">
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="Product Name"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    fullWidth
+                                    required
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="Description"
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    fullWidth
+                                    required
+                                    multiline
+                                    rows={4}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="Price"
+                                    type="number"
+                                    value={formData.price}
+                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                    fullWidth
+                                    required
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="Category"
+                                    value={formData.category}
+                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                    fullWidth
+                                    required
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <input
+                                    type="file"
+                                    onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
+                                    required
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Button type="submit" variant="contained" color="primary">
+                                    {editingProductId ? 'Update Product' : 'Add Product'}
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </form>
+                </div>
+                <div className="product-list-container">
+                    <Typography variant="h6" gutterBottom>
+                        Product List
+                    </Typography>
+                    <TableContainer component={Paper} className="product-table">
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Name</TableCell>
+                                    <TableCell>Description</TableCell>
+                                    <TableCell>Price</TableCell>
+                                    <TableCell>Category</TableCell>
+                                    <TableCell>Image</TableCell>
+                                    <TableCell>Actions</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {paginatedProducts.map((product) => (
+                                    <TableRow key={product._id}>
+                                        <TableCell>{product.name}</TableCell>
+                                        <TableCell>{product.description}</TableCell>
+                                        <TableCell>${Number(product.price).toFixed(2)}</TableCell>
+                                        <TableCell>{product.category}</TableCell>
+                                        <TableCell>
+                                            <img src={`http://localhost:5000/${product.imageUrl}`} alt={product.name} className="img-thumbnail" style={{ width: '50px' }} />
+                                        </TableCell>
+                                        <TableCell>
+                                            <Button onClick={() => handleEdit(product)} variant="outlined" color="warning" className="me-2">
+                                                Edit
+                                            </Button>
+                                            <Button onClick={() => handleDelete(product._id)} variant="outlined" color="error">
+                                                Delete
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <TablePagination
+                        rowsPerPageOptions={[5, 10, 25]}
+                        component="div"
+                        count={products.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
+                </div>
             </div>
         </div>
     );

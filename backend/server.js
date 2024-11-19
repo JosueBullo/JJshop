@@ -11,7 +11,9 @@ const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/productRoutes'); // Ensure the path is correct
 const productController = require('./controllers/productController'); // Import your product controller
 const userRoutes = require('./routes/userRoutes'); // Import user routes
-const usersController = require('./controllers/userController'); // Import the controller
+//const usersController = require('./controllers/userController'); // Import the controller
+const transactionRoutes = require('./routes/transactions'); // Import transaction routes
+
 // Load environment variables from .env file
 dotenv.config();
 
@@ -49,6 +51,9 @@ app.use('/api/products', productRoutes);
 
 // Set up user routes
 app.use('/api/users', userRoutes); // Set up user routes
+
+// Set up transaction routes
+app.use('/api/transactions', transactionRoutes);
 
 // Define the route for creating products with image upload
 app.post('/api/products', upload.single('image'), productController.createProduct);

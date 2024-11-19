@@ -1,11 +1,12 @@
-/* Login.css */
+/* src/components/Login.css */
 
 body {
-    background-image: url('/src/assets/watch.jpg'); /* Add your background image path */
+    background-image: url('/src/assets/watch.jpg'); /* Keep your background image */
     background-size: cover;
     background-position: center;
     font-family: 'Arial', sans-serif;
-    color: #333;
+    color: #fff; /* White text color for all text on the page */
+    background-color: #121212; /* Dark background for the whole page */
 }
 
 .login-container {
@@ -17,9 +18,9 @@ body {
 }
 
 .form-wrapper {
-    background: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+    background: rgba(30, 30, 30, 0.9); /* Darker semi-transparent background */
     border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     padding: 40px;
     max-width: 400px;
     width: 100%;
@@ -30,7 +31,7 @@ body {
     margin-bottom: 20px;
     text-align: center;
     font-weight: bold;
-    color: #4A4A4A; /* Darker shade for elegance */
+    color: #fff; /* White text for the title */
 }
 
 .input-group {
@@ -40,14 +41,17 @@ body {
 .input-field {
     width: 100%;
     padding: 12px;
-    border: 1px solid #ccc;
+    border: 1px solid #444; /* Darker border */
     border-radius: 5px;
     font-size: 16px;
+    background-color: #333; /* Dark background for inputs */
+    color: #fff; /* White text for input fields */
 }
 
 .input-field:focus {
     border-color: #5C4D4D; /* Elegant focus border color */
     outline: none;
+    background-color: #444; /* Slightly lighter background on focus */
 }
 
 .submit-button {
@@ -55,19 +59,90 @@ body {
     padding: 12px;
     border: none;
     border-radius: 5px;
-    background-color: #5C4D4D; /* Elegant button color */
-    color: white;
+    background-color: #444; /* Dark button color */
+    color: #fff; /* White text for the button */
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .submit-button:hover {
-    background-color: #7B6E6E; /* Darker shade on hover */
+    background-color: #5C4D4D; /* Slightly lighter shade on hover */
 }
 
 .message {
     margin-top: 15px;
     text-align: center;
     color: #E74C3C; /* Error message color */
+}
+
+/* Exit button styling to match the design of other buttons */
+.exit-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #e74c3c; /* Red color */
+    color: #fff; /* White text for the exit button */
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s ease-in-out;
+    margin-top: 20px; /* Space it below other elements */
+}
+
+.exit-button:hover {
+    background-color: #c0392b; /* Darker red on hover */
+    transform: translateY(-2px); /* Slightly lift on hover for interaction effect */
+}
+
+.exit-button:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); /* Add a subtle red glow on focus */
+}
+
+/* Styling for the "Don't have an account?" link */
+.register-link {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.register-link p {
+    font-size: 16px;
+    color: #fff; /* White color for the text */
+}
+
+.register-link .link-text {
+    color: #3498db; /* Blue color for the link */
+    cursor: pointer;
+    text-decoration: none; /* Remove underline */
+}
+
+.register-link .link-text:hover {
+    text-decoration: underline; /* Add underline on hover */
+}
+
+/* Styling for the "OR" divider */
+.or {
+    text-align: center;
+    color: #fff; /* White color for the text */
+    margin: 20px 0; /* Add spacing around the divider */
+    font-size: 18px;
+    font-weight: 600; /* Make it bold for better visibility */
+}
+
+/* Google Login button */
+.google-login {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4285F4; /* Google blue */
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.google-login:hover {
+    background-color: #357AE8; /* Darker blue on hover */
 }

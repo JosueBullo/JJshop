@@ -38,38 +38,41 @@ exports.register = async (req, res) => {
 };
 
 // Login function
-const User = require('../models/User'); // Ensure correct path to User model
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Step 1: Find the user by email
+        // Find the user by email
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: 'Invalid credentials' }); // User not found
+            return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        // Step 2: Validate the password if it's a normal login
+        // Validate password
         if (password) {
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
-                return res.status(400).json({ message: 'Invalid credentials' }); // Password does not match
+                return res.status(400).json({ message: 'Invalid credentials' });
             }
         }
 
-        // Step 3: Sign token including the user's role
+        // Generate a JWT token
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        // Step 4: Respond with token, role, and a success message
-        res.json({ token, role: user.role, message: 'Login successful!' });
+        // Send the response with token, role, and userId
+        res.json({
+            token,
+            role: user.role,
+            userId: user._id, // Ensure userId is included in the response
+            message: 'Login successful!',
+        });
     } catch (err) {
-        console.error(err); // Log the error for debugging
+        console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 
 // Google login function
 exports.googleLogin = async (req, res) => {

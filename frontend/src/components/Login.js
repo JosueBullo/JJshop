@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { loginUser, googleLogin } from '../api/auth'; // Ensure this path is correct
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 import { GoogleLogin } from '@react-oauth/google'; // Import Google Login component
+import { Link } from 'react-router-dom'; // Import Link for navigation
 import './Login.css'; // Import the CSS file
 
 const Login = () => {
@@ -18,8 +19,12 @@ const Login = () => {
             const response = await loginUser(userData); // Call login API
             console.log('Login response:', response); // Log the response
 
-            const { token, role } = response; // Destructure token and role from response
-            localStorage.setItem('token', token); // Store token in localStorage
+            // Destructure token, role, and userId from response
+            const { token, role, userId } = response; 
+
+            // Store token and userId in localStorage
+            localStorage.setItem('token', token); 
+            localStorage.setItem('userId', userId); // Store userId
 
             // Redirect based on role
             if (role === 'admin') {
@@ -42,11 +47,13 @@ const Login = () => {
         try {
             const tokenId = credentialResponse.credential; // Get the token ID from Google response
             const res = await googleLogin({ tokenId }); // Call the googleLogin API
-            const { token, role } = res.data; // Destructure token and role from response
+            const { token, role, userId } = res.data; // Destructure token, role, and userId from response
 
-            // Store the token (if needed)
-            localStorage.setItem('token', token); // Store token in localStorage
-
+            // Store the token and userId in localStorage
+            localStorage.setItem('token', token); 
+            localStorage.setItem('userId', userId); // Store userId
+            console.log(token)
+            console.log(userId)
             // Redirect based on role
             if (role === 'admin') {
                 navigate('/admin'); // Redirect to admin page
@@ -69,6 +76,11 @@ const Login = () => {
         setMessage('Google login failed!'); // Set error message
     };
 
+    // Handle exit button click
+    const handleExit = () => {
+        navigate('/'); // Navigate to homepage or any other desired route
+    };
+
     return (
         <div className="login-container">
             <div className="form-wrapper">
@@ -89,19 +101,33 @@ const Login = () => {
                             type="password"
                             placeholder="Password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)} // Correctly set password state
+                            onChange={(e) => setPassword(e.target.value)}
                             required
                             className="input-field"
                         />
                     </div>
                     <button type="submit" className="submit-button">Login</button>
                 </form>
+
+                {/* "Don't have an account?" link */}
+                <div className="register-link">
+                    <p>Don't have an account? <Link to="/register" className="link-text">Register here</Link></p>
+                </div>
+
+                {/* OR Divider */}
                 <p className="or">OR</p>
+
+                {/* Google Login */}
                 <GoogleLogin
-                    onSuccess={handleGoogleLogin} // Callback for successful Google login
-                    onFailure={handleGoogleFailure} // Callback for failed Google login
+                    onSuccess={handleGoogleLogin}
+                    onFailure={handleGoogleFailure}
                 />
                 {message && <p className="message">{message}</p>} {/* Display the message if exists */}
+
+                {/* Exit Button */}
+                <button className="exit-button" onClick={handleExit}>
+                    Exit
+                </button>
             </div>
         </div>
     );

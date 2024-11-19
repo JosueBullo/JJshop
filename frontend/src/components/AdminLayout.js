@@ -1,22 +1,30 @@
 // src/components/AdminLayout.js
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom'; // Import Link for navigation and Outlet for nested routes
+import { Link, Outlet, useNavigate } from 'react-router-dom'; // Import Link, Outlet, and useNavigate for navigation
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesome component
-import { faHome, faClipboard, faBoxOpen, faShoppingCart, faUsers } from '@fortawesome/free-solid-svg-icons'; // Import icons
+import { faSignOutAlt, faClipboard, faBoxOpen, faShoppingCart, faUsers, faComments } from '@fortawesome/free-solid-svg-icons'; // Import comment icon
 import './AdminLayout.css'; // Import the styles
 
 const AdminLayout = () => {
+    const navigate = useNavigate(); // useNavigate hook for programmatic navigation
+
+    const handleLogout = () => {
+        // Perform logout actions, such as clearing authentication tokens
+        localStorage.removeItem('authToken'); // Example of clearing a token
+        navigate('/login'); // Redirect to the login page after logging out
+    };
+
     return (
         <div className="admin-layout">
             <nav className="navbar">
                 <div className="navbar-brand">
-                    <Link to="/" className="navbar-item">
-                        <FontAwesomeIcon icon={faHome} /> Home
-                    </Link>
+                    <button onClick={handleLogout} className="navbar-item">
+                        <FontAwesomeIcon icon={faSignOutAlt} /> Logout
+                    </button>
                 </div>
                 <div className="navbar-menu">
                     <Link to="/admin" className="navbar-item">
-                        <FontAwesomeIcon icon={faClipboard} /> Admin Page
+                        <FontAwesomeIcon icon={faClipboard} /> Dashboard
                     </Link>
                     <Link to="/admin/products" className="navbar-item">
                         <FontAwesomeIcon icon={faBoxOpen} /> Manage Products
@@ -26,6 +34,10 @@ const AdminLayout = () => {
                     </Link>
                     <Link to="/admin/users" className="navbar-item">
                         <FontAwesomeIcon icon={faUsers} /> Manage Users
+                    </Link>
+                    {/* Add the new Feedback page link */}
+                    <Link to="/admin/feedback" className="navbar-item">
+                        <FontAwesomeIcon icon={faComments} /> Feedback
                     </Link>
                 </div>
             </nav>
