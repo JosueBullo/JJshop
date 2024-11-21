@@ -15,15 +15,17 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 9999; /* Ensures modal appears above other content */
 }
 
 .transaction-content {
     background-color: white;
     padding: 20px;
     border-radius: 8px;
-    max-width: 400px;
+    max-width: 360px; /* Reduced the max-width to make it smaller */
     width: 100%;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Prevents overflow in case of large content */
 }
 
 .success-icon {
@@ -34,14 +36,33 @@
 
 .quantity-selector {
     margin-top: 10px;
+    width: 100%; /* Ensures the quantity input takes the full width */
 }
 
 .payment-options {
-    margin-top: 20px;
+    margin-top: 15px; /* Reduced top margin */
 }
 
 .transaction-actions {
     margin-top: 20px;
     display: flex;
     justify-content: space-between;
+    gap: 10px; /* Adds space between buttons */
+}
+
+/* Optional: Responsive design for smaller screens */
+@media (max-width: 600px) {
+    .transaction-content {
+        max-width: 90%; /* Allows the modal to be more responsive */
+        padding: 15px; /* Reduces padding on smaller screens */
+    }
+
+    .transaction-actions {
+        flex-direction: column; /* Stack buttons vertically on small screens */
+        align-items: center;
+    }
+
+    .product-image {
+        max-height: 180px; /* Limit product image height on small screens */
+    }
 }
