@@ -3,9 +3,9 @@ import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom'; // Import Link, Outlet, and useNavigate for navigation
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesome component
 import { faSignOutAlt, faClipboard, faBoxOpen, faShoppingCart, faUsers, faComments } from '@fortawesome/free-solid-svg-icons'; // Import comment icon
-import './AdminLayout.css'; // Import the styles
+import './LayoutAdmin.css'; // Import the styles
 
-const AdminLayout = () => {
+const LayoutAdmin = () => {
     const navigate = useNavigate(); // useNavigate hook for programmatic navigation
 
     const handleLogout = () => {
@@ -48,4 +48,4 @@ const AdminLayout = () => {
     );
 };
 
-export default AdminLayout;
+export default LayoutAdmin;

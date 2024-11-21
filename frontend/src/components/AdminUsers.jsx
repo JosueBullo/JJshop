@@ -20,7 +20,7 @@ import {
     TablePagination
 } from '@mui/material';
 
-const UserTable = () => {
+const AdminUsers = () => {
     const [users, setUsers] = useState([]);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -237,4 +237,4 @@ const UserTable = () => {
     );
 };
 
-export default UserTable;
+export default AdminUsers;

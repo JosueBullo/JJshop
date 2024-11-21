@@ -38,7 +38,6 @@ exports.register = async (req, res) => {
 };
 
 // Login function
-
 exports.login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -73,7 +72,6 @@ exports.login = async (req, res) => {
     }
 };
 
-
 // Google login function
 exports.googleLogin = async (req, res) => {
     const { tokenId } = req.body;
@@ -101,8 +99,13 @@ exports.googleLogin = async (req, res) => {
         // Sign token for the existing or newly created user
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        // Respond with token, role, and a success message
-        res.json({ token, role: user.role, message: 'Google login successful!' });
+        // Respond with token, role, userId, and a success message
+        res.json({ 
+            token, 
+            role: user.role, 
+            userId: user._id, // Include userId in the response 
+            message: 'Google login successful!' 
+        });
     } catch (err) {
         console.error(err); // Log the error for debugging
         res.status(500).json({ message: 'Server error' });

@@ -2,13 +2,13 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google'; // Import GoogleOAuthProvider
 import HomePage from './components/HomePage'; // Import HomePage component
-import AdminLayout from './components/AdminLayout'; // Import AdminLayout for admin routes
-import AdminPage from './components/AdminPage'; // Import AdminPage for admin overview
+import LayoutAdmin from './components/LayoutAdmin'; // Import AdminLayout for admin routes
+import AdminPage from './components/AdminDashboard'; // Import AdminPage for admin overview
 import AdminProductPage from './components/AdminProductPage'; // Import AdminProductPage for managing products
 import Register from './components/Register'; // Import Register component
 import Login from './components/Login'; // Import Login component
 import UserPage from './components/UserPage'; // Import UserPage component
-import UserTable from './components/UserTable'; // Import UserTable for user management
+import AdminUsers from './components/AdminUsers'; // Import UserTable for user management
 
 const App = () => {
     return (
@@ -16,10 +16,10 @@ const App = () => {
             <Router>
                 <Routes>
                     <Route path="/" element={<HomePage />} /> {/* Set HomePage as the default route */}
-                    <Route path="/admin/*" element={<AdminLayout />}> {/* Admin layout for nested routes */}
+                    <Route path="/admin/*" element={<LayoutAdmin />}> {/* Admin layout for nested routes */}
                         <Route path="" element={<AdminPage />} /> {/* Admin main page */}
                         <Route path="products" element={<AdminProductPage />} /> {/* Manage products page */}
-                        <Route path="users" element={<UserTable />} /> {/* Manage users page */}
+                        <Route path="users" element={<AdminUsers />} /> {/* Manage users page */}
                         {/* Add other admin routes here */}
                     </Route>
                     <Route path="/register" element={<Register />} /> {/* Register route */}

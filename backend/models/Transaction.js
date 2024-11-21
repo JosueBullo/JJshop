@@ -18,6 +18,10 @@ const TransactionSchema = new mongoose.Schema({
         required: true,
         min: 1,
       },
+      category: {
+        type: String,
+        required: true, // Include category for each product
+      },
     },
   ],
   paymentMethod: {
