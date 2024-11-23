@@ -258,24 +258,7 @@ const UserPage = () => {
           </Grid>
         </Grid>
 
-        {/* Apply Filter Button */}
-        <Button
-          variant="contained"
-          sx={{
-            marginTop: 2,
-            backgroundColor: '#1976d2',
-            color: '#fff',
-            '&:hover': {
-              backgroundColor: '#1565c0',
-            },
-            padding: '8px 24px',
-          }}
-          onClick={() => {
-            // Logic to apply the filter can be placed here
-          }}
-        >
-          Apply Filters
-        </Button>
+       
       </Box>
     </Box>
   
@@ -313,20 +296,21 @@ const UserPage = () => {
                                     borderRadius: 8,
                                 }}
                             />
-                            <CardContent>
-                                <Typography variant="h6" gutterBottom>
-                                    {product.name}
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {product.description}
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {product.category}
-                                </Typography>
-                                <Typography variant="h6" color="primary">
-                                    ₱{product.price.toFixed(2)}
-                                </Typography>
-                            </CardContent>
+                          <CardContent>
+    <Typography variant="h6" gutterBottom>
+        <strong>Product Name:</strong> {product.name}
+    </Typography>
+    <Typography variant="body2" color="textSecondary">
+        <strong>Description:</strong> {product.description}
+    </Typography>
+    <Typography variant="body2" color="textSecondary">
+        <strong>Category:</strong> {product.category}
+    </Typography>
+    <Typography variant="h6" color="primary">
+        <strong>Price:</strong> ₱{product.price.toFixed(2)}
+    </Typography>
+</CardContent>
+
                             <Button variant="contained" color="primary" onClick={() => handlePurchase(product)}>
                                 Buy Now
                             </Button>
