@@ -18,6 +18,10 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Card,
+  CardContent,
+  CardMedia,
+  Divider,
 } from '@mui/material';
 
 const AdminTransactionsPage = () => {
@@ -47,13 +51,32 @@ const AdminTransactionsPage = () => {
 
   const updateTransactionStatus = async (transactionId, newStatus) => {
     setUpdating(true);
+
     try {
-      const response = await axios.patch(`http://localhost:5000/api/transactions/${transactionId}/status`, { status: newStatus });
+      // Optimistically update the status in the UI
       setTransactions((prev) =>
         prev.map((transaction) =>
-          transaction._id === transactionId ? { ...transaction, status: response.data.transaction.status } : transaction
+          transaction._id === transactionId ? { ...transaction, status: newStatus } : transaction
         )
       );
+
+      // Retrieve token from localStorage
+      const token = localStorage.getItem('token'); // Get token from localStorage
+
+      // Check if token exists, if not, alert the user
+      if (!token) {
+        alert('You need to log in first');
+        return;
+      }
+
+      // Send the update request to the backend with the token in the Authorization header
+      const response = await axios.patch(
+        `http://localhost:5000/api/transactions/${transactionId}/status`, 
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } } // Include token in the Authorization header
+      );
+
+      // If successful, show a confirmation message
       alert('Transaction status updated successfully!');
     } catch (err) {
       console.error('Error updating transaction status:', err.message);
@@ -98,7 +121,7 @@ const AdminTransactionsPage = () => {
               <TableRow key={transaction._id}>
                 <TableCell>{transaction._id}</TableCell>
                 <TableCell>
-                  {transaction.user ? `${transaction.user.name} (${transaction.user.email})` : 'No user'}
+                  {transaction.user ? transaction.user.email : 'No user'}
                 </TableCell>
                 <TableCell>₱{formatCurrency(transaction.totalAmount)}</TableCell>
                 <TableCell>{transaction.paymentMethod}</TableCell>
@@ -130,31 +153,56 @@ const AdminTransactionsPage = () => {
         </Table>
       </Paper>
 
+      {/* Transaction Details Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="md">
         <DialogTitle>Transaction Details</DialogTitle>
         <DialogContent>
           {selectedTransaction && selectedTransaction.products?.length > 0 ? (
-            <Grid container spacing={2}>
+            <Grid container spacing={3}>
               <Grid item xs={12}>
-                <Typography variant="h6">Products</Typography>
-                {selectedTransaction.products.map((item, index) => (
-                  <Box key={index} sx={{ marginBottom: 2 }}>
-                    <Typography variant="body1">
-                      <strong>{item.name}</strong> (Category: {item.category}) - ₱{formatCurrency(item.price)} x {item.quantity}
-                    </Typography>
-                    <Grid container spacing={2}>
-                      {item.images.map((image, i) => (
-                        <Grid item key={i} xs={6} sm={4} md={3}>
-                          <img
-                            src={image.url}
-                            alt={`Product Image ${i + 1}`}
-                            style={{ width: '100%', borderRadius: '8px' }}
+                <Typography variant="h6" color="textSecondary" sx={{ marginBottom: 2 }}>
+                  Products
+                </Typography>
+                {selectedTransaction.products.map((item, index) => {
+                  // Calculate the total price for each product (price * quantity)
+                  const productTotal = item.price * item.quantity;
+                  return (
+                    <Card key={index} sx={{ display: 'flex', marginBottom: 3, borderRadius: '12px' }}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={4}>
+                          <CardMedia
+                            component="img"
+                            image={item.images[0]?.url || '/default-image.jpg'} // Add fallback image
+                            alt={`Product Image ${index + 1}`}
+                            sx={{
+                              height: 200,
+                              objectFit: 'cover',
+                              borderRadius: '8px',
+                              boxShadow: 3,
+                              transition: 'transform 0.3s ease',
+                              '&:hover': { transform: 'scale(1.05)' }, // Hover effect
+                            }}
                           />
                         </Grid>
-                      ))}
-                    </Grid>
-                  </Box>
-                ))}
+                        <Grid item xs={12} sm={8}>
+                          <CardContent sx={{ flex: 1 }}>
+                            <Typography variant="h6">{item.name}</Typography>
+                            <Typography variant="body2" color="textSecondary">
+                              Category: {item.category}
+                            </Typography>
+                            <Typography variant="body1" color="primary" sx={{ marginY: 1 }}>
+                              ₱{formatCurrency(productTotal)} {/* Display the total price */}
+                            </Typography>
+                            <Divider />
+                          </CardContent>
+                        </Grid>
+                      </Grid>
+                    </Card>
+                  );
+                })}
+                <Typography variant="h6" color="primary" sx={{ marginTop: 2 }}>
+                  Total Amount: ₱{formatCurrency(selectedTransaction.totalAmount)} {/* Display overall total amount */}
+                </Typography>
               </Grid>
             </Grid>
           ) : (
@@ -162,7 +210,9 @@ const AdminTransactionsPage = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">Close</Button>
+          <Button onClick={handleCloseDialog} color="primary" variant="contained">
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

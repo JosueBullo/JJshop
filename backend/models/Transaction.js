@@ -58,6 +58,12 @@ const TransactionSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  status: {
+    type: String,
+    required: true,
+    enum: ['Pending', 'Processing', 'Completed', 'Cancelled'], // Valid status values
+    default: 'Pending', // Default status is 'Pending'
+  },
 });
 
 // Export the Transaction model
