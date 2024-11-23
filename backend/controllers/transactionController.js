@@ -345,14 +345,14 @@ const getUserrTransactions = async (req, res) => {
       return res.status(403).json({ message: 'You are not authorized to view these transactions' });
     }
 
-    // Fetch the user's transactions (modify if needed)
-    const user = await User.findById(userId).populate({
-      path: 'transactions', // Assuming 'transactions' is an array of transaction references in the User model
-      populate: {
-        path: 'products.product',
-        select: 'name category price images',
-      },
-    });
+   const user = await User.findById(userId).populate({
+  path: 'transactions', 
+  populate: {
+    path: 'products.product', // Ensures product details are included
+    select: 'name category price images', // Includes the 'name' field
+  },
+});
+
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
