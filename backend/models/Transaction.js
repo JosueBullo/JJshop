@@ -1,42 +1,64 @@
-  const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-  const TransactionSchema = new mongoose.Schema({
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User', // Reference to User model
-      required: true,
-    },
-    products: [
-      {
-        product: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Product', // Reference to Product model
-          required: true,
-        },
-        quantity: {
-          type: Number,
-          required: true,
-          min: 1,
-        },
-        category: {
-          type: String,
-          required: true, // Include category for each product
-        },
+// Define the Transaction schema
+const TransactionSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User', // Reference to User model
+    required: true,
+  },
+  products: [
+    {
+      product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product', // Reference to Product model
+        required: true,
       },
-    ],
-    paymentMethod: {
-      type: String,
-      required: true,
-      enum: ['credit-card', 'paypal', 'bank-transfer'], // Ensure valid payment methods
+      name: { // Product name
+        type: String,
+        required: true,
+      },
+      quantity: {
+        type: Number,
+        required: true,
+        min: 1,
+      },
+      category: {
+        type: String,
+        required: true, // Include category for each product
+      },
+      price: { // Product price
+        type: Number,
+        required: true,
+      },
+      images: [ // Include product images
+        {
+          public_id: {
+            type: String,
+            required: true,
+          },
+          url: {
+            type: String,
+            required: true,
+          },
+        },
+      ],
     },
-    totalAmount: {
-      type: Number,
-      required: true,
-    },
-    purchaseDate: {
-      type: Date,
-      default: Date.now,
-    },
-  });
+  ],
+  paymentMethod: {
+    type: String,
+    required: true,
+    enum: ['credit-card', 'paypal', 'bank-transfer'], // Ensure valid payment methods
+  },
+  totalAmount: {
+    type: Number,
+    default: 0,
+  },
+  purchaseDate: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-  module.exports = mongoose.model('Transaction', TransactionSchema);
+// Export the Transaction model
+module.exports = mongoose.model('Transaction', TransactionSchema);

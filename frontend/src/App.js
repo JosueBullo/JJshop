@@ -9,7 +9,8 @@ import Register from './components/Register'; // Import Register component
 import Login from './components/Login'; // Import Login component
 import UserPage from './components/UserPage'; // Import UserPage component
 import AdminUsers from './components/AdminUsers'; // Import UserTable for user management
-import UpdateProfile from './components/UserUpdateProfile';
+import UpdateProfile from './components/UserUpdateProfile'
+import AdminTransactionsPage from './components/AdminTransactionsPage'
 const App = () => {
     return (
         <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}> {/* Wrap app in GoogleOAuthProvider */}
@@ -20,6 +21,7 @@ const App = () => {
                         <Route path="" element={<AdminPage />} /> {/* Admin main page */}
                         <Route path="products" element={<AdminProductPage />} /> {/* Manage products page */}
                         <Route path="users" element={<AdminUsers />} /> {/* Manage users page */}
+                        <Route path="orders" element={<AdminTransactionsPage/>}/> {/* Manage  orders page */}
                         {/* Add other admin routes here */}
                     </Route>
                     <Route path="/register" element={<Register />} /> {/* Register route */}

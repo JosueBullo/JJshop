@@ -333,7 +333,6 @@ const UserPage = () => {
         setSelectedProduct(null);
         setTransactionStep(1);
     };
-
     const proceedToConfirmation = async () => {
         try {
             const token = localStorage.getItem('token');
@@ -343,7 +342,6 @@ const UserPage = () => {
                 throw new Error('You must be logged in to make a purchase');
             }
     
-            // Ensure the userId is set
             const finalUserId = userId || savedUserId;
             if (!finalUserId) {
                 throw new Error('User ID is required');
@@ -353,10 +351,20 @@ const UserPage = () => {
                 throw new Error('Product and quantity are required');
             }
     
-            const productList = [{ product: selectedProduct._id, quantity }];
+            const productList = [
+                {
+                    product: selectedProduct._id,
+                    quantity,
+                    name: selectedProduct.name, // Include product name
+                    imageUrl: selectedProduct.images?.[0]?.url || '/default-placeholder.png', // Include product image URL
+                },
+            ];
+    
             if (!paymentMethod) {
                 throw new Error('Payment method is required');
             }
+    
+            const totalAmount = selectedProduct.price * quantity; // Calculate total amount
     
             const response = await axios.post(
                 'http://localhost:5000/api/transactions/purchase',
@@ -364,13 +372,14 @@ const UserPage = () => {
                     products: productList,
                     paymentMethod,
                     userId: finalUserId, // Ensure userId is sent
+                    totalAmount, // Include totalAmount in the request
                 },
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
     
-            setTransactionStep(2);
+            setTransactionStep(2); // Proceed to confirmation step
             console.log('Transaction successful:', response.data);
         } catch (error) {
             console.error('Error during transaction:', error.message);
@@ -380,6 +389,8 @@ const UserPage = () => {
             );
         }
     };
+    
+    
     
     const handleMenuClick = (event) => {
         setAnchorEl(event.currentTarget);
