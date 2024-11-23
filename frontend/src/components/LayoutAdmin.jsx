@@ -9,8 +9,9 @@ const LayoutAdmin = () => {
     const navigate = useNavigate(); // useNavigate hook for programmatic navigation
 
     const handleLogout = () => {
-        // Perform logout actions, such as clearing authentication tokens
+        // Clear authentication tokens and user ID from localStorage
         localStorage.removeItem('authToken'); // Example of clearing a token
+        localStorage.removeItem('userId'); // Clear the user ID as well
         navigate('/login'); // Redirect to the login page after logging out
     };
 

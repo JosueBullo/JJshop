@@ -8,6 +8,8 @@ import {
 } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import './UserPage.css';
+import InfiniteScroll from 'react-infinite-scroll-component'; // Import InfiniteScroll
+
 
 const UserPage = () => {
     const [products, setProducts] = useState([]);
@@ -27,6 +29,7 @@ const UserPage = () => {
     // Filter states
     const [categoryFilter, setCategoryFilter] = useState('');
     const [priceFilter, setPriceFilter] = useState([0, 10000000]);
+    const [hasMore, loadMoreProducts] = useState(true);  // Flag to check if more products are available
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -152,175 +155,195 @@ const UserPage = () => {
 
     return (
         <div sx={{ padding: 4 }}>
-            {/* Navbar */}
-            <AppBar position="sticky">
-                <Toolbar>
-                    <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                        User Page
-                    </Typography>
-                    <IconButton
-                        edge="end"
-                        color="inherit"
-                        onClick={handleMenuClick}
-                        aria-label="account"
+        {/* Navbar */}
+        <AppBar position="sticky">
+            <Toolbar>
+                <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                    User Page
+                </Typography>
+                <IconButton
+                    edge="end"
+                    color="inherit"
+                    onClick={handleMenuClick}
+                    aria-label="account"
+                >
+                    <AccountCircle />
+                </IconButton>
+                <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleMenuClose}
+                >
+                    <MenuItem component={Link} to="/user/transactions">Order History</MenuItem>
+                    <MenuItem component={Link} to="/update-profile">Update Profile</MenuItem>
+                    <MenuItem
+                        onClick={() => {
+                            // Clear user data from localStorage
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('userId');
+                            // Redirect to login page
+                            window.location.href = '/login';
+                        }}
                     >
-                        <AccountCircle />
-                    </IconButton>
-                    <Menu
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleMenuClose}
-                    >
-                        <MenuItem component={Link} to="/user/transactions">Order History</MenuItem>
-                        <MenuItem component={Link} to="/update-profile">Update Profile</MenuItem>
-                    </Menu>
-                </Toolbar>
-            </AppBar>
+                        Logout
+                    </MenuItem>
+                </Menu>
+            </Toolbar>
+        </AppBar>
+   
 
-          
-    <Box
-      sx={{
-        marginTop: 4,
-        padding: 3,
-        backgroundColor: '#ffffff',
-        borderRadius: 2,
-        boxShadow: 3,
-        marginBottom: 4,
-        width: '100%',
-      }}
-    >
-      <Typography variant="h6" gutterBottom align="center" sx={{ color: '#333' }}>
-        Filter Products
-      </Typography>
-      
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-        <Grid container spacing={2} justifyContent="center">
-          {/* Category Filter */}
-          <Grid item xs={12} sm={6} md={4}>
-            <Select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              fullWidth
-              variant="outlined"
+            {/* Filters and Product Display */}
+            <Box
               sx={{
-                backgroundColor: '#f5f5f5',
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 1,
-                  paddingRight: 2,
-                },
+                marginTop: 4,
+                padding: 3,
+                backgroundColor: '#ffffff',
+                borderRadius: 2,
+                boxShadow: 3,
+                marginBottom: 4,
+                width: '100%',
               }}
             >
-              <MenuItem value="">All Categories</MenuItem>
-              {categories.map((category, index) => (
-                <MenuItem key={index} value={category}>
-                  {category}
-                </MenuItem>
-              ))}
-            </Select>
-          </Grid>
+              <Typography variant="h6" gutterBottom align="center" sx={{ color: '#333' }}>
+                Filter Products
+              </Typography>
+              
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                <Grid container spacing={2} justifyContent="center">
+                  {/* Category Filter */}
+                  <Grid item xs={12} sm={6} md={4}>
+                    <Select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      fullWidth
+                      variant="outlined"
+                      sx={{
+                        backgroundColor: '#f5f5f5',
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: 1,
+                          paddingRight: 2,
+                        },
+                      }}
+                    >
+                      <MenuItem value="">All Categories</MenuItem>
+                      {categories.map((category, index) => (
+                        <MenuItem key={index} value={category}>
+                          {category}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </Grid>
 
-          {/* Min Price Filter */}
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="Min Price"
-              type="number"
-              value={priceFilter[0]}
-              onChange={(e) => setPriceFilter([Number(e.target.value), priceFilter[1]])}
-              fullWidth
-              variant="outlined"
-              sx={{
-                backgroundColor: '#f5f5f5',
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 1,
-                  paddingRight: 2,
-                },
-              }}
-            />
-          </Grid>
+                  {/* Price Filter */}
+                  <Grid item xs={12} sm={6} md={4}>
+                    <TextField
+                      label="Min Price"
+                      type="number"
+                      value={priceFilter[0]}
+                      onChange={(e) => setPriceFilter([Number(e.target.value), priceFilter[1]])}
+                      fullWidth
+                      variant="outlined"
+                      sx={{
+                        backgroundColor: '#f5f5f5',
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: 1,
+                          paddingRight: 2,
+                        },
+                      }}
+                    />
+                  </Grid>
 
-          {/* Max Price Filter */}
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="Max Price"
-              type="number"
-              value={priceFilter[1]}
-              onChange={(e) => setPriceFilter([priceFilter[0], Number(e.target.value)])}
-              fullWidth
-              variant="outlined"
-              sx={{
-                backgroundColor: '#f5f5f5',
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 1,
-                  paddingRight: 2,
-                },
-              }}
-            />
-          </Grid>
-        </Grid>
+                  <Grid item xs={12} sm={6} md={4}>
+                    <TextField
+                      label="Max Price"
+                      type="number"
+                      value={priceFilter[1]}
+                      onChange={(e) => setPriceFilter([priceFilter[0], Number(e.target.value)])}
+                      fullWidth
+                      variant="outlined"
+                      sx={{
+                        backgroundColor: '#f5f5f5',
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: 1,
+                          paddingRight: 2,
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+            </Box>
 
-       
-      </Box>
-    </Box>
-  
+            {/* Product Display and Infinite Scroll */}
+            <InfiniteScroll
+              dataLength={filteredProducts.length}
+              next={loadMoreProducts}
+              hasMore={hasMore}
+              loader={<CircularProgress />}
+              scrollThreshold={0.9}
+            >
+                <Grid container spacing={4}>
+  {filteredProducts.map((product) => (
+    <Grid item xs={12} sm={6} md={4} key={product._id}>
+      <Card>
+        <CardContent>
+          {/* Product Image */}
+          <img
+            src={product.images?.[0]?.url || '/default-placeholder.png'} // Show the first image or a placeholder
+            alt={product.name}
+            style={{ width: '100%', height: 'auto', objectFit: 'cover', borderRadius: '4px' }}
+          />
+          {/* Product Name */}
+          <Typography variant="h6" sx={{ marginTop: 2 }}>
+            {product.name}
+          </Typography>
+          {/* Product Description */}
+          <Typography variant="body2" color="text.secondary">
+            {product.description}
+          </Typography>
+          {/* Product Price */}
+          <Typography variant="h6" sx={{ marginTop: 1 }}>
+          ₱{product.price.toFixed(2)}
+          </Typography>
+          
+          {/* Display product labels */}
+          <Box sx={{ marginTop: 2, display: 'flex', gap: 1 }}>
+            {product.labels?.map((label, index) => (
+              <Typography
+                key={index}
+                variant="body2"
+                sx={{
+                  padding: '2px 8px',
+                  backgroundColor: '#f1f1f1',
+                  borderRadius: '12px',
+                  fontSize: '0.875rem',
+                }}
+              >
+                {label}
+              </Typography>
+            ))}
+          </Box>
 
+          {/* Add to cart or Buy Now button */}
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ marginTop: 2 }}
+            onClick={() => handlePurchase(product)}
+          >
+            Buy Now
+          </Button>
+        </CardContent>
+      </Card>
+    </Grid>
+  ))}
+</Grid>
 
+            </InfiniteScroll>
 
-
-            {/* Products */}
-            <Typography variant="h4" gutterBottom align="center" sx={{ marginTop: 4 }}>
-                Available Products
-            </Typography>
-
-            <Grid container spacing={4} justifyContent="center">
-                {filteredProducts.map((product) => (
-                    <Grid item xs={12} sm={6} md={4} key={product._id}>
-                        <Card sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            padding: 2,
-                            borderRadius: 2,
-                            boxShadow: 3,
-                            transition: 'transform 0.3s ease',
-                            '&:hover': {
-                                transform: 'scale(1.05)',
-                            }
-                        }}>
-                            <img
-                                src={product?.images?.[0]?.url || '/default-placeholder.png'}
-                                alt={product?.name}
-                                style={{
-                                    width: '100%',
-                                    height: 150,
-                                    objectFit: 'cover',
-                                    borderRadius: 8,
-                                }}
-                            />
-                          <CardContent>
-    <Typography variant="h6" gutterBottom>
-        <strong>Product Name:</strong> {product.name}
-    </Typography>
-    <Typography variant="body2" color="textSecondary">
-        <strong>Description:</strong> {product.description}
-    </Typography>
-    <Typography variant="body2" color="textSecondary">
-        <strong>Category:</strong> {product.category}
-    </Typography>
-    <Typography variant="h6" color="primary">
-        <strong>Price:</strong> ₱{product.price.toFixed(2)}
-    </Typography>
-</CardContent>
-
-                            <Button variant="contained" color="primary" onClick={() => handlePurchase(product)}>
-                                Buy Now
-                            </Button>
-                        </Card>
-                    </Grid>
-                ))}
-            </Grid>
-
-            {/* Transaction Modal */}
-            <Modal
+               {/* Transaction Modal */}
+               <Modal
                 open={showTransaction}
                 onClose={closeTransaction}
                 sx={{
@@ -417,8 +440,6 @@ const UserPage = () => {
                 </Box>
             </Modal>
 
-            
-            
         </div>
     );
 };
