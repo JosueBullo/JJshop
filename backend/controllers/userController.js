@@ -52,6 +52,8 @@ exports.updateUser = async (req, res) => {
     }
 };
 
+
+
 // Delete a user
 exports.deleteUser = async (req, res) => {
     const { id } = req.params;
