@@ -164,16 +164,21 @@
 const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 const Product = require('../models/Product');
+const jwt = require('jsonwebtoken'); // For JWT authorization
 
 // Controller function to create a transaction
 async function createTransaction(req, res) {
   try {
-    const { products, paymentMethod, userId } = req.body;
+    const { products, paymentMethod } = req.body;
     const token = req.headers['authorization']?.split(' ')[1]; // Extract token from header
 
     if (!token) {
       return res.status(401).json({ message: 'Authorization token required' });
     }
+
+    // Decode token and get userId
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id; // Extract user ID from the token
 
     // Validate input fields
     if (!products || products.length === 0) {
@@ -181,9 +186,6 @@ async function createTransaction(req, res) {
     }
     if (!paymentMethod) {
       return res.status(400).json({ message: 'Payment method is required' });
-    }
-    if (!userId) {
-      return res.status(400).json({ message: 'User ID is required' });
     }
 
     // Validate the user
@@ -244,11 +246,19 @@ async function createTransaction(req, res) {
 async function getUserTransactions(req, res) {
   try {
     const { userId } = req.params;
+    const token = req.headers['authorization']?.split(' ')[1]; // Extract token from header
 
-    if (!userId) {
-      return res.status(400).json({ message: 'User ID is required' });
+    if (!token) {
+      return res.status(401).json({ message: 'Authorization token required' });
     }
 
+    // Decode token and ensure the user is authorized
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.id !== userId) {
+      return res.status(403).json({ message: 'You are not authorized to view these transactions' });
+    }
+
+    // Fetch the user's transactions
     const user = await User.findById(userId).populate({
       path: 'transactions',
       populate: {
@@ -267,6 +277,8 @@ async function getUserTransactions(req, res) {
     res.status(500).json({ message: 'Error fetching user transactions', error: error.message });
   }
 }
+
+// Controller function to update transaction status
 async function updateTransactionStatus(req, res) {
   try {
     const { transactionId } = req.params;
@@ -293,9 +305,6 @@ async function updateTransactionStatus(req, res) {
       return res.status(404).json({ message: 'Transaction not found' });
     }
 
-    // Log the updated transaction for debugging
-    console.log('Updated Transaction:', transaction);
-
     res.status(200).json({
       message: 'Transaction status updated successfully',
       transaction,
@@ -306,7 +315,7 @@ async function updateTransactionStatus(req, res) {
   }
 }
 
-// Controller function to get all transactions with details
+// Controller function to get all transactions with details (Admin-only route)
 async function getAllTransactions(req, res) {
   try {
     const transactions = await Transaction.find()
@@ -319,8 +328,46 @@ async function getAllTransactions(req, res) {
     res.status(500).json({ message: 'Error fetching transactions', error: error.message });
   }
 }
+// Function to get transactions for a user
+const getUserrTransactions = async (req, res) => {
+  try {
+    const { userId } = req.params; // Get userId from the URL params
+
+    const token = req.headers['authorization']?.split(' ')[1]; // Extract token from header
+
+    if (!token) {
+      return res.status(401).json({ message: 'Authorization token required' });
+    }
+
+    // Decode the token and ensure the user is authorized
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.id !== userId) {
+      return res.status(403).json({ message: 'You are not authorized to view these transactions' });
+    }
+
+    // Fetch the user's transactions (modify if needed)
+    const user = await User.findById(userId).populate({
+      path: 'transactions', // Assuming 'transactions' is an array of transaction references in the User model
+      populate: {
+        path: 'products.product',
+        select: 'name category price images',
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json(user.transactions);
+  } catch (error) {
+    console.error('Error fetching user transactions:', error.message);
+    res.status(500).json({ message: 'Error fetching user transactions', error: error.message });
+  }
+};
+
 
 module.exports = {
+  getUserrTransactions,
   createTransaction,
   getUserTransactions,
   updateTransactionStatus,

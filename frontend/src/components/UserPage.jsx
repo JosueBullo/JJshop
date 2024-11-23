@@ -268,6 +268,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import { Link } from 'react-router-dom';
+
 import { 
     Button, CircularProgress, Select, MenuItem, TextField, Card, CardContent, 
     Typography, Grid, Box, Modal, AppBar, Toolbar, Menu, IconButton 
@@ -420,13 +422,13 @@ const UserPage = () => {
                         <AccountCircle />
                     </IconButton>
                     <Menu
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleMenuClose}
-                    >
-                        <MenuItem>Order History</MenuItem>
-                        <MenuItem>Update Profile</MenuItem>
-                    </Menu>
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem component={Link} to="/user/transactions">Order History</MenuItem> {/* Route to user transaction history */}
+        <MenuItem component={Link} to="/update-profile">Update Profile</MenuItem>
+      </Menu>
                 </Toolbar>
             </AppBar>
 
