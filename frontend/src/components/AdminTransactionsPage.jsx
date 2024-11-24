@@ -22,6 +22,8 @@ import {
   CardContent,
   CardMedia,
   Divider,
+  Tooltip,
+  Chip,
 } from '@mui/material';
 
 const AdminTransactionsPage = () => {
@@ -33,6 +35,11 @@ const AdminTransactionsPage = () => {
   const [updating, setUpdating] = useState(false);
 
   const formatCurrency = (value) => (typeof value === 'number' ? value.toFixed(2) : '0.00');
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString(); // Format: MM/DD/YYYY
+  };
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -51,32 +58,22 @@ const AdminTransactionsPage = () => {
 
   const updateTransactionStatus = async (transactionId, newStatus) => {
     setUpdating(true);
-
     try {
-      // Optimistically update the status in the UI
       setTransactions((prev) =>
         prev.map((transaction) =>
           transaction._id === transactionId ? { ...transaction, status: newStatus } : transaction
         )
       );
-
-      // Retrieve token from localStorage
-      const token = localStorage.getItem('token'); // Get token from localStorage
-
-      // Check if token exists, if not, alert the user
+      const token = localStorage.getItem('token');
       if (!token) {
         alert('You need to log in first');
         return;
       }
-
-      // Send the update request to the backend with the token in the Authorization header
-      const response = await axios.patch(
-        `http://localhost:5000/api/transactions/${transactionId}/status`, 
+      await axios.patch(
+        `http://localhost:5000/api/transactions/${transactionId}/status`,
         { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } } // Include token in the Authorization header
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      // If successful, show a confirmation message
       alert('Transaction status updated successfully!');
     } catch (err) {
       console.error('Error updating transaction status:', err.message);
@@ -96,37 +93,39 @@ const AdminTransactionsPage = () => {
     setSelectedTransaction(null);
   };
 
-  if (loading) return <Box display="flex" justifyContent="center"><CircularProgress /></Box>;
-  if (error) return <Typography color="error">{error}</Typography>;
+  if (loading) return <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh"><CircularProgress /></Box>;
+  if (error) return <Typography color="error" textAlign="center">{error}</Typography>;
 
   return (
-    <Box sx={{ padding: 2 }}>
+    <Box sx={{ padding: 3 }}>
       <Typography variant="h4" gutterBottom>
         Admin Transactions
       </Typography>
-      <Paper sx={{ overflow: 'hidden', width: '100%' }}>
+      <Divider sx={{ marginBottom: 2 }} />
+      <Paper elevation={3}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>User</TableCell>
-              <TableCell>Total Amount</TableCell>
-              <TableCell>Payment Method</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell align="center">Transaction ID</TableCell>
+              <TableCell align="center">User Email</TableCell>
+              <TableCell align="center">Total Amount</TableCell>
+              <TableCell align="center">Payment Method</TableCell>
+              <TableCell align="center">Purchase Date</TableCell>
+              <TableCell align="center">Status</TableCell>
+              <TableCell align="center">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {transactions.map((transaction) => (
               <TableRow key={transaction._id}>
-                <TableCell>{transaction._id}</TableCell>
-                <TableCell>
-                  {transaction.user ? transaction.user.email : 'No user'}
+                <TableCell align="center">{transaction._id}</TableCell>
+                <TableCell align="center">{transaction.user?.email || 'N/A'}</TableCell>
+                <TableCell align="center">
+                  <Chip label={`₱${formatCurrency(transaction.totalAmount)}`} color="primary" />
                 </TableCell>
-                <TableCell>₱{formatCurrency(transaction.totalAmount)}</TableCell>
-                <TableCell>{transaction.paymentMethod}</TableCell>
-                <TableCell>{transaction.status || 'Pending'}</TableCell>
-                <TableCell>
+                <TableCell align="center">{transaction.paymentMethod}</TableCell>
+                <TableCell align="center">{formatDate(transaction.purchaseDate)}</TableCell>
+                <TableCell align="center">
                   <Select
                     value={transaction.status || 'Pending'}
                     onChange={(e) => updateTransactionStatus(transaction._id, e.target.value)}
@@ -138,14 +137,17 @@ const AdminTransactionsPage = () => {
                     <MenuItem value="Completed">Completed</MenuItem>
                     <MenuItem value="Cancelled">Cancelled</MenuItem>
                   </Select>
-                  <Button
-                    onClick={() => handleViewDetails(transaction)}
-                    sx={{ ml: 2 }}
-                    variant="outlined"
-                    disabled={updating}
-                  >
-                    View Details
-                  </Button>
+                </TableCell>
+                <TableCell align="center">
+                  <Tooltip title="View Transaction Details">
+                    <Button
+                      variant="contained"
+                      onClick={() => handleViewDetails(transaction)}
+                      disabled={updating}
+                    >
+                      Details
+                    </Button>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
             ))}
@@ -153,64 +155,42 @@ const AdminTransactionsPage = () => {
         </Table>
       </Paper>
 
-      {/* Transaction Details Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="md">
         <DialogTitle>Transaction Details</DialogTitle>
         <DialogContent>
+          <Typography>Purchase Date: {formatDate(selectedTransaction?.purchaseDate)}</Typography>
           {selectedTransaction && selectedTransaction.products?.length > 0 ? (
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Typography variant="h6" color="textSecondary" sx={{ marginBottom: 2 }}>
-                  Products
-                </Typography>
-                {selectedTransaction.products.map((item, index) => {
-                  // Calculate the total price for each product (price * quantity)
-                  const productTotal = item.price * item.quantity;
-                  return (
-                    <Card key={index} sx={{ display: 'flex', marginBottom: 3, borderRadius: '12px' }}>
-                      <Grid container spacing={2}>
-                        <Grid item xs={12} sm={4}>
-                          <CardMedia
-                            component="img"
-                            image={item.images[0]?.url || '/default-image.jpg'} // Add fallback image
-                            alt={`Product Image ${index + 1}`}
-                            sx={{
-                              height: 200,
-                              objectFit: 'cover',
-                              borderRadius: '8px',
-                              boxShadow: 3,
-                              transition: 'transform 0.3s ease',
-                              '&:hover': { transform: 'scale(1.05)' }, // Hover effect
-                            }}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={8}>
-                          <CardContent sx={{ flex: 1 }}>
-                            <Typography variant="h6">{item.name}</Typography>
-                            <Typography variant="body2" color="textSecondary">
-                              Category: {item.category}
-                            </Typography>
-                            <Typography variant="body1" color="primary" sx={{ marginY: 1 }}>
-                              ₱{formatCurrency(productTotal)} {/* Display the total price */}
-                            </Typography>
-                            <Divider />
-                          </CardContent>
-                        </Grid>
-                      </Grid>
-                    </Card>
-                  );
-                })}
-                <Typography variant="h6" color="primary" sx={{ marginTop: 2 }}>
-                  Total Amount: ₱{formatCurrency(selectedTransaction.totalAmount)} {/* Display overall total amount */}
-                </Typography>
-              </Grid>
+            <Grid container spacing={2}>
+              {selectedTransaction.products.map((product, index) => (
+                <Card key={index} sx={{ display: 'flex', marginBottom: 2 }}>
+                  <CardMedia
+                    component="img"
+                    image={product.images?.[0]?.url || '/default-image.jpg'}
+                    alt={product.name || 'Product Image'}
+                    sx={{ width: 160, height: 120, borderRadius: '8px' }}
+                  />
+                  <CardContent>
+                    <Typography variant="h6">{product.name}</Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      Category: {product.category}
+                    </Typography>
+                    <Typography variant="body1" color="primary">
+                      Price: ₱{formatCurrency(product.price)} x {product.quantity} = ₱
+                      {formatCurrency(product.price * product.quantity)}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              ))}
+              <Typography variant="h6" align="right" color="primary" sx={{ mt: 2, width: '100%' }}>
+                Total Amount: ₱{formatCurrency(selectedTransaction.totalAmount)}
+              </Typography>
             </Grid>
           ) : (
             <Typography>No product details available.</Typography>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary" variant="contained">
+          <Button onClick={handleCloseDialog} variant="contained" color="primary">
             Close
           </Button>
         </DialogActions>
