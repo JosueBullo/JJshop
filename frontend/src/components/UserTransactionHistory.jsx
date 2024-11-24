@@ -14,6 +14,11 @@ import {
   CircularProgress,
   Box,
   Paper,
+  TableContainer,
+  Avatar,
+  Divider,
+  Tooltip,
+  Chip,
 } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
@@ -58,8 +63,23 @@ const UserTransactionsPage = () => {
 
   const formatCurrency = (value) => (typeof value === 'number' ? value.toFixed(2) : '0.00');
 
-  if (loading) return <Box display="flex" justifyContent="center"><CircularProgress /></Box>;
-  if (error) return <Typography color="error">{error}</Typography>;
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box textAlign="center" mt={4}>
+        <Typography color="error" variant="h6">
+          {error}
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <div>
@@ -85,45 +105,60 @@ const UserTransactionsPage = () => {
         <Typography variant="h4" gutterBottom>
           My Transaction History
         </Typography>
-        <Paper sx={{ overflow: 'hidden', width: '100%' }}>
+        <Divider sx={{ marginBottom: 2 }} />
+        <TableContainer component={Paper} elevation={3}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Total Amount</TableCell>
-                <TableCell>Payment Method</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Purchase Date</TableCell>
-                <TableCell>Products</TableCell>
+                <TableCell align="center">Transaction ID</TableCell>
+                <TableCell align="center">Total Amount</TableCell>
+                <TableCell align="center">Payment Method</TableCell>
+                <TableCell align="center">Status</TableCell>
+                <TableCell align="center">Purchase Date</TableCell>
+                <TableCell align="center">Products</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-  {transactions.map((transaction) => (
-    <TableRow key={transaction._id}>
-      <TableCell>{transaction._id}</TableCell>
-      <TableCell>₱{formatCurrency(transaction.totalAmount)}</TableCell>
-      <TableCell>{transaction.paymentMethod}</TableCell>
-      <TableCell>{transaction.status || 'Pending'}</TableCell>
-      <TableCell>{new Date(transaction.purchaseDate).toLocaleDateString()}</TableCell>
-      <TableCell>
-        {transaction.products?.map((product, index) => (
-          product && product.product ? (
-            <Typography key={index}>
-              {product.product?.name || 'Unknown Product'} (x{product.quantity || 0})
-            </Typography>
-          ) : (
-            <Typography key={index}>
-              Unknown Product (x{product.quantity || 0})
-            </Typography>
-          )
-        ))}
-      </TableCell>
-    </TableRow>
-  ))}
-</TableBody>
-
+              {transactions.map((transaction) => (
+                <TableRow key={transaction._id}>
+                  <TableCell align="center">{transaction._id}</TableCell>
+                  <TableCell align="center">
+                    <Chip
+                      label={`₱${formatCurrency(transaction.totalAmount)}`}
+                      color="primary"
+                    />
+                  </TableCell>
+                  <TableCell align="center">{transaction.paymentMethod}</TableCell>
+                  <TableCell align="center">
+                    <Tooltip title={transaction.status || 'Pending'}>
+                      <Chip
+                        label={transaction.status || 'Pending'}
+                        color={transaction.status === 'Completed' ? 'success' : 'warning'}
+                      />
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell align="center">
+                    {new Date(transaction.purchaseDate).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    {transaction.products?.map((product, index) => (
+                      <Box key={index} display="flex" alignItems="center">
+                        <Avatar
+                          sx={{ width: 24, height: 24, marginRight: 1 }}
+                          alt={product.product?.name || 'Unknown Product'}
+                          src={product.product?.image || ''}
+                        />
+                        <Typography variant="body2">
+                          {product.product?.name || 'Product is out of stock'} (x{product.quantity || 0})
+                        </Typography>
+                      </Box>
+                    ))}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
-        </Paper>
+        </TableContainer>
       </Box>
     </div>
   );

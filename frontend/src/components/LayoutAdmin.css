@@ -49,3 +49,32 @@
     background-color: #f9f9f9;
     flex-grow: 1;
 }
+
+/* src/components/AdminPage.css */
+.navbar {
+    display: flex; /* Use flexbox to arrange items in a row */
+    justify-content: space-between; /* Space between brand and menu */
+    align-items: center; /* Center items vertically */
+    background-color: #007BFF; /* Background color for navbar */
+    padding: 1rem; /* Padding around navbar */
+}
+
+.navbar-brand {
+    font-size: 1.5rem; /* Font size for brand */
+    color: white; /* Color for brand text */
+}
+
+.navbar-menu {
+    display: flex; /* Use flexbox for horizontal menu */
+}
+
+.navbar-item {
+    color: white; /* Link color */
+    text-decoration: none; /* Remove underline */
+    margin-left: 1rem; /* Spacing between links */
+    transition: color 0.3s; /* Smooth color change on hover */
+}
+
+.navbar-item:hover {
+    color: #FFC107; /* Change color on hover */
+}
