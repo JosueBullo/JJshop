@@ -28,7 +28,7 @@ const Login = () => {
 
             // Redirect based on role
             if (role === 'admin') {
-                navigate('/admin'); // Redirect to admin page
+                navigate('/admin/sales-chart'); // Redirect to admin page
             } else {
                 navigate('/user'); // Redirect to user page
             }
@@ -56,7 +56,7 @@ const Login = () => {
             console.log(userId)
             // Redirect based on role
             if (role === 'admin') {
-                navigate('/admin'); // Redirect to admin page
+                navigate('/admin/sales-chart'); // Redirect to admin page
             } else {
                 navigate('/user'); // Redirect to user page
             }

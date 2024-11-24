@@ -24,7 +24,7 @@ const LayoutAdmin = () => {
                     </button>
                 </div>
                 <div className="navbar-menu">
-                    <Link to="/admin" className="navbar-item">
+                    <Link to="/admin/sales-chart" className="navbar-item">
                         <FontAwesomeIcon icon={faClipboard} /> Dashboard
                     </Link>
                     <Link to="/admin/products" className="navbar-item">

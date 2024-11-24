@@ -189,7 +189,7 @@ const AdminUsers = () => {
                             <TableCell>Email</TableCell>
                             <TableCell>Role</TableCell>
                             <TableCell>Profile</TableCell>
-                            <TableCell>Actions</TableCell>
+                            <TableCell>Actions</TableCell> {/* Actions column */}
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -199,6 +199,18 @@ const AdminUsers = () => {
                                 <TableCell>{user.email}</TableCell>
                                 <TableCell>{user.role}</TableCell>
                                 <TableCell>
+                                    {/* Profile related content */}
+                                    {user.profileImage ? (
+                                        <img 
+                                            src={`http://localhost:5000/uploads/${user.profileImage}`} 
+                                            alt="Profile" 
+                                            style={{ width: '50px', height: '50px', borderRadius: '50%' }} 
+                                        />
+                                    ) : (
+                                        <Typography>No Profile Image</Typography>
+                                    )}
+                                </TableCell>
+                                <TableCell> {/* Actions column */}
                                     <Button 
                                         variant="contained" 
                                         color="warning" 

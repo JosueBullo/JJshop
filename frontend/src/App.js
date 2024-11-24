@@ -12,6 +12,8 @@ import UserTransactionHistory from './components/UserTransactionHistory'; // Imp
 import AdminUsers from './components/AdminUsers'; // Import UserTable for user management
 import UpdateProfile from './components/UserUpdateProfile'; // Import UpdateProfile component
 import AdminTransactionsPage from './components/AdminTransactionsPage'; // Import AdminTransactionsPage component
+import SalesChartPage from './components/SalesChartPage'; // Import AdminTransactionsPage component
+
 
 const App = () => {
     return (
@@ -20,10 +22,12 @@ const App = () => {
                 <Routes>
                     <Route path="/" element={<HomePage />} /> {/* Set HomePage as the default route */}
                     <Route path="/admin/*" element={<LayoutAdmin />}> {/* Admin layout for nested routes */}
-                        <Route path="" element={<AdminPage />} /> {/* Admin main page */}
+                        <Route path="sales-chart" element={<SalesChartPage />} /> {/* Admin main page */}
                         <Route path="products" element={<AdminProductPage />} /> {/* Manage products page */}
                         <Route path="users" element={<AdminUsers />} /> {/* Manage users page */}
                         <Route path="orders" element={<AdminTransactionsPage />} /> {/* Manage orders page */}
+                        
+
                         {/* Add other admin routes here */}
                     </Route>
                     <Route path="/register" element={<Register />} /> {/* Register route */}
